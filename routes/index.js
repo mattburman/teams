@@ -37,7 +37,7 @@ router.get('/', (req, res, next) => {
       console.log(graphqlRes.data);
       const people = {};
       YAML.parse(graphqlRes.data.data.repository.object.text).forEach(person => {
-        people[person.github] = person;
+        people[person.github.toLowerCase()] = person;
       });
 
       const userQueryString = Object.keys(people)
@@ -49,9 +49,13 @@ router.get('/', (req, res, next) => {
       axios.post('https://api.github.com/graphql', { query: getdetails.replace('{{USERS}}', userQueryString) }, { headers })
         .then((graphqlRes) => {
           graphqlRes.data.data.search.nodes.forEach(person => {
-            Object.keys(person).forEach(key => {
-              if (people[person.login]) people[person.login][key] = person[key];
-            });
+            if (people[person.login.toLowerCase()]) {
+              Object.keys(person).forEach(key => {
+                people[person.login.toLowerCase()][key] = person[key];
+              });
+            } else {
+              console.log(person);
+            }
           });
           console.log(people);
           res.render('index', { title: 'Teams', people });
