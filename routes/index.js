@@ -50,8 +50,7 @@ router.get('/', (req, res, next) => {
         .then((graphqlRes) => {
           graphqlRes.data.data.search.nodes.forEach(person => {
             Object.keys(person).forEach(key => {
-              people[person.login][key] = person[key];
-              people[person.login].thing = 'test';
+              if (people[person.login]) people[person.login][key] = person[key];
             });
           });
           console.log(people);
